@@ -93,6 +93,17 @@ export function getDataExtent(transactions: readonly Transaction[]): DateRange |
   return { from, to };
 }
 
+export function resolveChartRange(
+  range: DateRange | null,
+  transactions: readonly Transaction[],
+  todayISO: string,
+): DateRange | null {
+  if (range) return range;
+  const extent = getDataExtent(transactions);
+  if (!extent) return null;
+  return { from: extent.from, to: extent.to > todayISO ? extent.to : todayISO };
+}
+
 function enumerateBucketKeys(range: DateRange, granularity: SeriesGranularity): string[] {
   const keys: string[] = [];
   const end = parseISODate(range.to);

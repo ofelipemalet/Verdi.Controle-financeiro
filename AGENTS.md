@@ -28,3 +28,12 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project architecture
+
+- Finance domain logic (types, categories, money in integer cents, periods, calculations, zod schemas) lives in `src/features/finance/model` and stays free of React/UI imports — keeps calculations testable and reusable by a future backend.
+- All persistence goes through the async `TransactionRepository` interface in `src/features/finance/data`; `data/index.ts` is the single place that picks the implementation (currently localStorage) — swapping to a cloud database later only touches that file.
+- Components read data only via the TanStack Query hooks in `src/features/finance/hooks` and invalidate the `transactions` query after mutations — this keeps every page's indicators and charts in sync automatically.
+- Money is always stored and summed as integer cents and only divided by 100 when formatting — avoids floating-point rounding errors.
+- Transaction create/edit/delete dialogs are owned by `TransactionDialogProvider` in the root layout and opened through `useTransactionDialog()` — one form implementation for every page.
+- Category icons/colors live in `features/finance/components/category-appearance.ts`, separate from category ids/labels in the model — keeps UI concerns out of the domain.

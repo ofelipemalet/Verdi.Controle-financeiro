@@ -18,14 +18,15 @@ import {
   calculateIndicators,
   calculateTotals,
   filterByRange,
-  getDataExtent,
   groupByCategory,
+  resolveChartRange,
   safeRatio,
 } from "@/features/finance/model/calculations";
 import {
   DEFAULT_PERIOD,
   formatRangeLabel,
   resolvePeriod,
+  toISODate,
   type PeriodKey,
 } from "@/features/finance/model/dates";
 import { formatPercent } from "@/features/finance/model/money";
@@ -83,7 +84,7 @@ function Analytics({ transactions, period }: AnalyticsProps) {
   const data = useMemo(() => {
     const range = resolvePeriod(period, today);
     const periodTransactions = filterByRange(transactions, range);
-    const chartRange = range ?? getDataExtent(transactions);
+    const chartRange = resolveChartRange(range, transactions, toISODate(today));
     return {
       range,
       totals: calculateTotals(periodTransactions),
@@ -100,23 +101,24 @@ function Analytics({ transactions, period }: AnalyticsProps) {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard
           label="Entrou"
           cents={data.totals.incomeCents}
           icon={ArrowDownLeft}
           tone="income"
-          hint={rangeLabel}
+          hint="No período"
         />
         <StatCard
           label="Saiu"
           cents={data.totals.expenseCents}
           icon={ArrowUpRight}
           tone="expense"
-          hint={rangeLabel}
+          hint="No período"
         />
         <StatCard
           label="Economizado"
+          className="col-span-2 sm:col-span-1"
           cents={data.totals.netCents}
           icon={PiggyBank}
           tone="savings"

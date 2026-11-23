@@ -73,9 +73,11 @@ export function MonthComparison({ months }: MonthComparisonProps) {
                 previous={previous[key]}
                 higherIsBetter={higherIsBetter}
               />
-              <span className="text-xs text-muted-foreground">
-                vs. {formatMonthKey(previous.month, "MMM")}
-              </span>
+              {percentChange(current[key], previous[key]) !== null && (
+                <span className="text-xs text-muted-foreground">
+                  vs. {formatMonthKey(previous.month, "MMM")}
+                </span>
+              )}
             </div>
           </div>
         ))}

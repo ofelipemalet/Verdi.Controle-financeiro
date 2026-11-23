@@ -19,10 +19,10 @@ function IndicatorTile({ icon: Icon, label, value, detail }: IndicatorTileProps)
       </span>
       <div className="min-w-0">
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="tabular mt-0.5 truncate font-display text-lg font-semibold text-foreground">
+        <p className="tabular mt-0.5 break-words font-display text-lg font-semibold text-foreground">
           {value}
         </p>
-        <p className="mt-0.5 truncate text-xs text-muted-foreground">{detail}</p>
+        <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{detail}</p>
       </div>
     </div>
   );

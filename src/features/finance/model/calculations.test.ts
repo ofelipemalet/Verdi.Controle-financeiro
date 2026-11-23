@@ -9,6 +9,7 @@ import {
   filterByRange,
   groupByCategory,
   percentChange,
+  resolveChartRange,
 } from "./calculations";
 import type { CategoryId } from "./categories";
 import { resolvePeriod } from "./dates";
@@ -38,12 +39,11 @@ const today = new Date(2026, 10, 21);
 
 describe("totals", () => {
   it("sums income, expenses and net without floating point drift", () => {
-    const totals = calculateTotals(
-      [tx("income", 10), tx("income", 20), tx("expense", 15)].map((t) => ({
-        ...t,
-        date: "2026-11-01",
-      })),
-    );
+    const totals = calculateTotals([
+      tx("income", 10, "2026-11-01"),
+      tx("income", 20, "2026-11-01"),
+      tx("expense", 15, "2026-11-01"),
+    ]);
     expect(totals).toEqual({ incomeCents: 30, expenseCents: 15, netCents: 15 });
   });
 
@@ -140,5 +140,13 @@ describe("categories and indicators", () => {
     expect(percentChange(100, 0)).toBeNull();
     expect(percentChange(150, 100)).toBe(0.5);
     expect(percentChange(-50, -100)).toBe(0.5);
+  });
+
+  it("extends the whole-period chart range up to today", () => {
+    expect(resolveChartRange(null, [tx("expense", 1, "2026-10-10")], "2026-11-21")).toEqual({
+      from: "2026-10-10",
+      to: "2026-11-21",
+    });
+    expect(resolveChartRange(null, [], "2026-11-21")).toBeNull();
   });
 });

@@ -143,7 +143,7 @@ export function TransactionDialogProvider({ children }: { children: ReactNode })
             <AlertDialogTitle className="font-display">Excluir movimentação?</AlertDialogTitle>
             <AlertDialogDescription>
               {pendingDelete
-                ? `"${pendingDelete.description}" no valor de ${formatCurrency(pendingDelete.amountCents)} será removida permanentemente.`
+                ? `A movimentação “${pendingDelete.description}”, de ${formatCurrency(pendingDelete.amountCents)}, será removida permanentemente.`
                 : ""}
             </AlertDialogDescription>
           </AlertDialogHeader>

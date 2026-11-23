@@ -51,7 +51,8 @@ export function TransactionForm({
   const form = useForm<TransactionFormInput, unknown, TransactionInput>({
     resolver: zodResolver(schema),
     defaultValues,
-    mode: "onTouched",
+    mode: "onSubmit",
+    reValidateMode: "onChange",
   });
 
   const type = form.watch("type");

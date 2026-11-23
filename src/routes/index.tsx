@@ -25,7 +25,7 @@ import {
   calculateAvailableBalance,
   calculateTotals,
   filterByRange,
-  getDataExtent,
+  resolveChartRange,
   safeRatio,
 } from "@/features/finance/model/calculations";
 import {
@@ -92,7 +92,7 @@ function Dashboard({ transactions, period }: DashboardProps) {
     const todayISO = toISODate(today);
     const range = resolvePeriod(period, today);
     const periodTransactions = filterByRange(transactions, range);
-    const chartRange = range ?? getDataExtent(transactions);
+    const chartRange = resolveChartRange(range, transactions, todayISO);
     return {
       range,
       balanceCents: calculateAvailableBalance(transactions, todayISO),
@@ -109,7 +109,7 @@ function Dashboard({ transactions, period }: DashboardProps) {
     <div className="flex flex-col gap-4 md:gap-6">
       <BalanceHero balanceCents={data.balanceCents} />
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard
           label="Receitas"
           cents={data.totals.incomeCents}
@@ -126,6 +126,7 @@ function Dashboard({ transactions, period }: DashboardProps) {
         />
         <StatCard
           label="Economizado"
+          className="col-span-2 sm:col-span-1"
           cents={data.totals.netCents}
           icon={PiggyBank}
           tone="savings"
