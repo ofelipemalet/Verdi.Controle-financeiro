@@ -37,3 +37,5 @@ use the editor.
 - Money is always stored and summed as integer cents and only divided by 100 when formatting — avoids floating-point rounding errors.
 - Transaction create/edit/delete dialogs are owned by `TransactionDialogProvider` in the root layout and opened through `useTransactionDialog()` — one form implementation for every page.
 - Category icons/colors live in `features/finance/components/category-appearance.ts`, separate from category ids/labels in the model — keeps UI concerns out of the domain.
+- `BrandMark` is the single source of the logo; the PNG/SVG app icons and `public/manifest.webmanifest` are rendered from the same mark — regenerate them whenever the mark changes so the installed app icon stays in sync.
+- The app is installable via manifest only (no service worker / offline cache) — avoids stale-cache issues; add offline support only if explicitly requested.

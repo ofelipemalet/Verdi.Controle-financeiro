@@ -1,28 +1,42 @@
 import { Link } from "@tanstack/react-router";
 
+import { cn } from "@/lib/utils";
+
+import { BrandMark } from "./BrandMark";
+
 export const APP_NAME = "Verdi";
 
-export function Brand() {
+interface BrandProps {
+  /** "inverse" is for dark green surfaces (sidebar, mobile header). */
+  tone?: "default" | "inverse";
+}
+
+export function Brand({ tone = "default" }: BrandProps) {
+  const inverse = tone === "inverse";
   return (
     <Link
       to="/"
       className="press inline-flex items-center gap-2.5 rounded-xl"
       aria-label={`${APP_NAME} — Início`}
     >
-      <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-float">
-        <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden fill="none">
-          <path
-            d="M5 5.5c4.5 0 7 3.2 7 8.5 0-5.3 2.5-8.5 7-8.5"
-            stroke="currentColor"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <path d="M12 14v4.5" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-        </svg>
-      </span>
-      <span className="font-display text-lg font-semibold tracking-tight text-foreground">
-        {APP_NAME}
+      <BrandMark className={cn(inverse && "ring-1 ring-hero-foreground/20")} />
+      <span className="flex flex-col leading-none">
+        <span
+          className={cn(
+            "font-display text-lg font-semibold tracking-tight",
+            inverse ? "text-hero-foreground" : "text-foreground",
+          )}
+        >
+          {APP_NAME}
+        </span>
+        <span
+          className={cn(
+            "mt-1 text-[10px] font-semibold uppercase tracking-[0.18em]",
+            inverse ? "text-hero-muted" : "text-muted-foreground",
+          )}
+        >
+          Finanças pessoais
+        </span>
       </span>
     </Link>
   );

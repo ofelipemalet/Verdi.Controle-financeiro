@@ -19,6 +19,16 @@ const iconVariants = cva(
   },
 );
 
+const accentVariants = cva("absolute inset-x-0 top-0 h-[3px]", {
+  variants: {
+    tone: {
+      income: "bg-income/70",
+      expense: "bg-expense/70",
+      savings: "bg-savings/70",
+    },
+  },
+});
+
 interface StatCardProps {
   label: string;
   cents: number;
@@ -32,16 +42,19 @@ export function StatCard({ label, cents, icon: Icon, tone, hint, className }: St
   return (
     <article
       className={cn(
-        "surface-card animate-rise flex min-w-0 flex-col gap-3 p-4 sm:gap-4 sm:p-5",
+        "surface-card animate-rise relative flex min-w-0 flex-col gap-3 overflow-hidden p-4 sm:gap-4 sm:p-5",
         className,
       )}
     >
       <div className="flex items-center justify-between gap-2">
-        <p className="truncate text-sm font-medium text-muted-foreground">{label}</p>
+        <p className="truncate text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+          {label}
+        </p>
         <span className={iconVariants({ tone })} aria-hidden>
           <Icon className="h-5 w-5" />
         </span>
       </div>
+      <span aria-hidden className={accentVariants({ tone })} />
       <div className="min-w-0">
         <Amount
           cents={cents}

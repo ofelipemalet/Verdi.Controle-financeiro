@@ -1,5 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowUpRight, BarChart3, PiggyBank } from "lucide-react";
+import {
+  ArrowDownLeft,
+  ArrowUpRight,
+  BarChart3,
+  CalendarRange,
+  Gauge,
+  PieChart,
+  PiggyBank,
+} from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { PageHeader } from "@/components/common/PageHeader";
@@ -130,7 +138,7 @@ function Analytics({ transactions, period }: AnalyticsProps) {
         />
       </div>
 
-      <SectionCard title="Receitas x Despesas" description={rangeLabel}>
+      <SectionCard title="Receitas x Despesas" icon={BarChart3} description={rangeLabel}>
         {data.series && data.hasActivity ? (
           <IncomeExpenseBarChart series={data.series} />
         ) : (
@@ -143,16 +151,17 @@ function Analytics({ transactions, period }: AnalyticsProps) {
       </SectionCard>
 
       <div className="grid gap-4 md:gap-6 xl:grid-cols-2">
-        <SectionCard title="Gastos por categoria" description={rangeLabel}>
+        <SectionCard title="Gastos por categoria" icon={PieChart} description={rangeLabel}>
           <CategoryBreakdown shares={data.categoryShares} totalCents={data.totals.expenseCents} />
         </SectionCard>
-        <SectionCard title="Indicadores de desempenho" description={rangeLabel}>
+        <SectionCard title="Indicadores de desempenho" icon={Gauge} description={rangeLabel}>
           <IndicatorsGrid indicators={data.indicators} />
         </SectionCard>
       </div>
 
       <SectionCard
         title="Comparação entre meses"
+        icon={CalendarRange}
         description={`Últimos ${COMPARISON_MONTHS} meses, do mais recente ao mais antigo`}
       >
         <MonthComparison months={data.months} />

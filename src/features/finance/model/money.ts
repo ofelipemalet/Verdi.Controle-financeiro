@@ -53,3 +53,21 @@ export function isValidAmountCents(value: unknown): value is number {
     value <= MAX_AMOUNT_CENTS
   );
 }
+
+export interface CurrencyParts {
+  sign: "" | "−";
+  symbol: string;
+  value: string;
+}
+
+/** Splits a BRL amount into sign, symbol and number so the UI can style each part. */
+export function formatCurrencyParts(cents: number): CurrencyParts {
+  const parts = currencyFormatter.formatToParts(Math.abs(cents) / 100);
+  const symbol = parts.find((p) => p.type === "currency")?.value ?? "R$";
+  const value = parts
+    .filter((p) => p.type !== "currency")
+    .map((p) => p.value)
+    .join("")
+    .trim();
+  return { sign: cents < 0 ? "−" : "", symbol, value };
+}

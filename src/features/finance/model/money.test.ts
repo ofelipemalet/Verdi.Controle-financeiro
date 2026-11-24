@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { MAX_AMOUNT_CENTS, formatCurrency, parseCurrencyDigits } from "./money";
+import {
+  MAX_AMOUNT_CENTS,
+  formatCurrency,
+  formatCurrencyParts,
+  parseCurrencyDigits,
+} from "./money";
 
 describe("parseCurrencyDigits", () => {
   it("reads typed digits as cents", () => {
@@ -22,5 +27,15 @@ describe("parseCurrencyDigits", () => {
 describe("formatCurrency", () => {
   it("formats cents as Brazilian reais", () => {
     expect(formatCurrency(123456).replace(/\s/g, " ")).toBe("R$ 1.234,56");
+  });
+});
+
+describe("formatCurrencyParts", () => {
+  it("splits a positive amount into symbol and value", () => {
+    expect(formatCurrencyParts(123456)).toEqual({ sign: "", symbol: "R$", value: "1.234,56" });
+  });
+
+  it("keeps the minus sign separate for negative balances", () => {
+    expect(formatCurrencyParts(-50)).toEqual({ sign: "−", symbol: "R$", value: "0,50" });
   });
 });

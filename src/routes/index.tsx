@@ -3,6 +3,7 @@ import {
   ArrowDownLeft,
   ArrowRight,
   ArrowUpRight,
+  History,
   LineChart,
   PiggyBank,
   Receipt,
@@ -16,6 +17,7 @@ import { StatCard } from "@/components/common/StatCard";
 import { EmptyState } from "@/components/common/StatusViews";
 import { Button } from "@/components/ui/button";
 import { BalanceHero } from "@/features/finance/components/BalanceHero";
+import { QuickActions } from "@/features/finance/components/QuickActions";
 import { CashflowAreaChart } from "@/features/finance/components/charts/CashflowAreaChart";
 import { useTransactionDialog } from "@/features/finance/components/TransactionDialogProvider";
 import { TransactionList } from "@/features/finance/components/TransactionList";
@@ -37,6 +39,7 @@ import {
 } from "@/features/finance/model/dates";
 import { formatPercent } from "@/features/finance/model/money";
 import type { Transaction } from "@/features/finance/model/types";
+import { useGreeting } from "@/hooks/use-greeting";
 
 const RECENT_LIMIT = 6;
 
@@ -64,12 +67,14 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   const [period, setPeriod] = useState<PeriodKey>(DEFAULT_PERIOD);
+  const { greeting, dateLabel } = useGreeting();
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        eyebrow="Visão geral"
-        title="Olá! Este é o seu resumo"
+        eyebrow={dateLabel ?? "Visão geral"}
+        title={`${greeting}!`}
+        description="Este é o resumo das suas finanças."
         actions={<PeriodSelect value={period} onChange={setPeriod} />}
       />
       <TransactionsBoundary>
@@ -107,7 +112,10 @@ function Dashboard({ transactions, period }: DashboardProps) {
 
   return (
     <div className="flex flex-col gap-4 md:gap-6">
-      <BalanceHero balanceCents={data.balanceCents} />
+      <div className="grid gap-5 lg:grid-cols-5 lg:gap-6">
+        <BalanceHero balanceCents={data.balanceCents} className="lg:col-span-3" />
+        <QuickActions className="lg:col-span-2" />
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <StatCard
@@ -141,6 +149,7 @@ function Dashboard({ transactions, period }: DashboardProps) {
       <div className="grid gap-4 md:gap-6 lg:grid-cols-5">
         <SectionCard
           title="Movimentações"
+          icon={LineChart}
           description={data.range ? formatRangeLabel(data.range) : "Todo o período"}
           className="lg:col-span-3"
         >
@@ -157,6 +166,7 @@ function Dashboard({ transactions, period }: DashboardProps) {
 
         <SectionCard
           title="Últimas transações"
+          icon={History}
           className="lg:col-span-2"
           action={
             data.recent.length > 0 && (
