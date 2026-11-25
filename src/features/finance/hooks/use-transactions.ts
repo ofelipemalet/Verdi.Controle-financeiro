@@ -12,6 +12,7 @@ export function useTransactions() {
     queryFn: () => transactionRepository.list(),
     retry: false,
     staleTime: Infinity,
+    networkMode: "always",
   });
 }
 
@@ -32,17 +33,20 @@ export function useTransactionMutations() {
 
   const create = useMutation({
     mutationFn: (input: TransactionInput) => transactionRepository.create(input),
+    networkMode: "always",
     onSuccess,
   });
 
   const update = useMutation({
     mutationFn: ({ id, input }: { id: string; input: TransactionInput }) =>
       transactionRepository.update(id, input),
+    networkMode: "always",
     onSuccess,
   });
 
   const remove = useMutation({
     mutationFn: (id: string) => transactionRepository.remove(id),
+    networkMode: "always",
     onSuccess,
   });
 

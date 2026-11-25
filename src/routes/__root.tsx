@@ -14,6 +14,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Toaster } from "@/components/ui/sonner";
 import { TransactionDialogProvider } from "@/features/finance/components/TransactionDialogProvider";
 import { useTransactionsSync } from "@/features/finance/hooks/use-transactions";
+import { initPwaOfflineSupport } from "@/lib/pwa-offline";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -146,6 +147,10 @@ function TransactionsSync() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    void initPwaOfflineSupport();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
