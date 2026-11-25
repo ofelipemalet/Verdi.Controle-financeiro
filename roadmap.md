@@ -8,4 +8,7 @@
 - [x] Testes de cálculos, validações e armazenamento
 - [x] Visual mais temático e profissional (menu verde-escuro, cartão de saldo estilo banco, atalhos)
 - [x] Instalável no celular (PWA) com o logo atual
-- [ ] Futuro: autenticação e banco na nuvem (aguardando pedido do usuário)
+- [ ] Apresentação e login com Google, sem cadastro adicional de perfil
+- [ ] Banco na nuvem e API autenticada com receitas/despesas isoladas por usuário
+- [ ] Proteção de acesso, limpeza de dados ao sair e testes de isolamento
+- [ ] Verificação das telas e do fluxo autenticado
