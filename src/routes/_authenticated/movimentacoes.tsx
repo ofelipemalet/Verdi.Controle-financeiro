@@ -23,7 +23,7 @@ const TYPE_FILTER_OPTIONS: readonly SegmentedOption<TypeFilter>[] = [
   { value: "expense", label: "Despesas", tone: "expense" },
 ];
 
-export const Route = createFileRoute("/movimentacoes")({
+export const Route = createFileRoute("/_authenticated/movimentacoes")({
   head: () => ({
     meta: [
       { title: "Movimentações — Verdi" },

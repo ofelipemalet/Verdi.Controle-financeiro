@@ -42,7 +42,7 @@ import type { Transaction } from "@/features/finance/model/types";
 
 const COMPARISON_MONTHS = 6;
 
-export const Route = createFileRoute("/analises")({
+export const Route = createFileRoute("/_authenticated/analises")({
   head: () => ({
     meta: [
       { title: "Análises — Verdi" },

@@ -1,52 +1,60 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-import { transactionRepository } from "../data";
+import { useAuthenticatedUser } from "@/features/auth/auth-context";
+
+import { transactionRepository, type TransactionRepository } from "../data";
 import type { TransactionInput } from "../model/types";
 
-export const transactionsQueryKey = ["transactions"] as const;
+export function getTransactionsQueryKey(userId?: string) {
+  return ["transactions", userId ?? "guest"] as const;
+}
 
-export function useTransactions() {
+export function useTransactions(repository: TransactionRepository = transactionRepository) {
+  const user = useAuthenticatedUser();
+  const queryKey = getTransactionsQueryKey(user?.id);
+
   return useQuery({
-    queryKey: transactionsQueryKey,
-    queryFn: () => transactionRepository.list(),
+    queryKey,
+    queryFn: () => repository.list(),
     retry: false,
-    staleTime: Infinity,
-    networkMode: "always",
+    staleTime: 30_000,
   });
 }
 
-export function useTransactionsSync(): void {
+export function useTransactionsSync(repository: TransactionRepository = transactionRepository): void {
   const queryClient = useQueryClient();
+  const user = useAuthenticatedUser();
+  const queryKey = getTransactionsQueryKey(user?.id);
+
   useEffect(
     () =>
-      transactionRepository.subscribe(() => {
-        void queryClient.invalidateQueries({ queryKey: transactionsQueryKey });
+      repository.subscribe(() => {
+        void queryClient.invalidateQueries({ queryKey });
       }),
-    [queryClient],
+    [queryClient, queryKey, repository],
   );
 }
 
-export function useTransactionMutations() {
+export function useTransactionMutations(repository: TransactionRepository = transactionRepository) {
   const queryClient = useQueryClient();
-  const onSuccess = () => queryClient.invalidateQueries({ queryKey: transactionsQueryKey });
+  const user = useAuthenticatedUser();
+  const queryKey = getTransactionsQueryKey(user?.id);
+  const onSuccess = () => queryClient.invalidateQueries({ queryKey });
 
   const create = useMutation({
-    mutationFn: (input: TransactionInput) => transactionRepository.create(input),
-    networkMode: "always",
+    mutationFn: (input: TransactionInput) => repository.create(input),
     onSuccess,
   });
 
   const update = useMutation({
     mutationFn: ({ id, input }: { id: string; input: TransactionInput }) =>
-      transactionRepository.update(id, input),
-    networkMode: "always",
+      repository.update(id, input),
     onSuccess,
   });
 
   const remove = useMutation({
-    mutationFn: (id: string) => transactionRepository.remove(id),
-    networkMode: "always",
+    mutationFn: (id: string) => repository.remove(id),
     onSuccess,
   });
 

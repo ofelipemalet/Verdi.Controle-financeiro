@@ -1,6 +1,6 @@
 const APP_SW_PATH = "/sw.js";
 const PAGES_CACHE_NAME = "pages-network-first";
-const APP_ROUTES = ["/", "/analises", "/movimentacoes"] as const;
+const APP_ROUTES = ["/", "/auth", "/inicio", "/analises", "/movimentacoes"] as const;
 
 const PREVIEW_PARENT_DOMAINS = [".lovable.app", ".gpt-eng.com", ".gptengineer.run"] as const;
 const BLOCKED_DOMAINS = [

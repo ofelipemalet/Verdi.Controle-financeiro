@@ -10,10 +10,8 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 
-import { AppShell } from "@/components/layout/AppShell";
 import { Toaster } from "@/components/ui/sonner";
-import { TransactionDialogProvider } from "@/features/finance/components/TransactionDialogProvider";
-import { useTransactionsSync } from "@/features/finance/hooks/use-transactions";
+import { supabase } from "@/integrations/supabase/client";
 import { initPwaOfflineSupport } from "@/lib/pwa-offline";
 
 import appCss from "../styles.css?url";
@@ -116,7 +114,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Google+Sans:wght@500&family=Manrope:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap",
       },
     ],
   }),
@@ -140,26 +138,34 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-function TransactionsSync() {
-  useTransactionsSync();
-  return null;
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const router = useRouter();
 
   useEffect(() => {
     void initPwaOfflineSupport();
   }, []);
 
+  useEffect(() => {
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
+      if (event === "SIGNED_OUT") {
+        void queryClient.cancelQueries().then(() => {
+          queryClient.clear();
+        });
+      } else {
+        void queryClient.invalidateQueries();
+      }
+      void router.invalidate();
+    });
+    return () => {
+      data.subscription.unsubscribe();
+    };
+  }, [queryClient, router]);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <TransactionsSync />
-      <TransactionDialogProvider>
-        <AppShell>
-          <Outlet />
-        </AppShell>
-      </TransactionDialogProvider>
+      <Outlet />
       <Toaster position="top-center" closeButton />
     </QueryClientProvider>
   );

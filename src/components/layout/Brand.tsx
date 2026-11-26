@@ -9,13 +9,14 @@ export const APP_NAME = "Verdi";
 interface BrandProps {
   /** "inverse" is for dark green surfaces (sidebar, mobile header). */
   tone?: "default" | "inverse";
+  to?: "/" | "/inicio";
 }
 
-export function Brand({ tone = "default" }: BrandProps) {
+export function Brand({ tone = "default", to = "/" }: BrandProps) {
   const inverse = tone === "inverse";
   return (
     <Link
-      to="/"
+      to={to}
       className="press inline-flex items-center gap-2.5 rounded-xl"
       aria-label={`${APP_NAME} — Início`}
     >

@@ -1,200 +1,287 @@
-import { Link, createFileRoute } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   ArrowDownLeft,
   ArrowRight,
   ArrowUpRight,
-  History,
-  LineChart,
-  PiggyBank,
-  Receipt,
+  ChartPie,
+  Lock,
+  LogOut,
+  ShieldCheck,
+  Smartphone,
+  Wallet,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 
-import { PageHeader } from "@/components/common/PageHeader";
-import { PeriodSelect } from "@/components/common/PeriodSelect";
-import { SectionCard } from "@/components/common/SectionCard";
-import { StatCard } from "@/components/common/StatCard";
-import { EmptyState } from "@/components/common/StatusViews";
+import { GuillochePattern } from "@/components/common/GuillochePattern";
+import { Brand } from "@/components/layout/Brand";
 import { Button } from "@/components/ui/button";
-import { BalanceHero } from "@/features/finance/components/BalanceHero";
-import { QuickActions } from "@/features/finance/components/QuickActions";
-import { CashflowAreaChart } from "@/features/finance/components/charts/CashflowAreaChart";
-import { useTransactionDialog } from "@/features/finance/components/TransactionDialogProvider";
-import { TransactionList } from "@/features/finance/components/TransactionList";
-import { TransactionsBoundary } from "@/features/finance/components/TransactionsBoundary";
-import {
-  buildCashflowSeries,
-  calculateAvailableBalance,
-  calculateTotals,
-  filterByRange,
-  resolveChartRange,
-  safeRatio,
-} from "@/features/finance/model/calculations";
-import {
-  DEFAULT_PERIOD,
-  formatRangeLabel,
-  resolvePeriod,
-  toISODate,
-  type PeriodKey,
-} from "@/features/finance/model/dates";
-import { formatPercent } from "@/features/finance/model/money";
-import type { Transaction } from "@/features/finance/model/types";
-import { useGreeting } from "@/hooks/use-greeting";
-
-const RECENT_LIMIT = 6;
+import { signOutUser } from "@/features/auth/auth-actions";
+import { usePublicAuthSession } from "@/features/auth/use-auth-session";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Início — Verdi" },
+      { title: "Verdi — Controle financeiro pessoal" },
       {
         name: "description",
         content:
-          "Seu painel financeiro: saldo disponível, receitas, despesas e economia do período.",
+          "Organize receitas, despesas, saldo disponível e análises financeiras na sua conta privada protegida com Google.",
       },
-      { property: "og:title", content: "Início — Verdi" },
+      { property: "og:title", content: "Verdi — Controle financeiro pessoal" },
       {
         property: "og:description",
         content:
-          "Seu painel financeiro: saldo disponível, receitas, despesas e economia do período.",
+          "Organize receitas, despesas, saldo disponível e análises financeiras na sua conta privada protegida com Google.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: HomePage,
+  component: PresentationPage,
 });
 
-function HomePage() {
-  const [period, setPeriod] = useState<PeriodKey>(DEFAULT_PERIOD);
-  const { greeting, dateLabel } = useGreeting();
+const HIGHLIGHTS = [
+  {
+    icon: Wallet,
+    title: "Saldo e fluxo sempre claros",
+    description:
+      "Veja em segundos o saldo disponível, total de entradas, saídas e quanto conseguiu economizar no período.",
+  },
+  {
+    icon: ChartPie,
+    title: "Análises por categoria e mês",
+    description:
+      "Entenda para onde vai cada real com gráficos interativos, comparação mensal e indicadores financeiros.",
+  },
+  {
+    icon: Smartphone,
+    title: "Na palma da mão e sincronizado",
+    description:
+      "Registre receitas e despesas pelo celular ou computador com seus dados salvos na nuvem na sua conta.",
+  },
+] as const;
+
+const PRIVACY_PILLARS = [
+  {
+    title: "Cada conta vê apenas os próprios dados",
+    description:
+      "Suas receitas e despesas ficam isoladas no banco de dados e nunca se misturam com as de outros usuários.",
+  },
+  {
+    title: "Login seguro com Google",
+    description:
+      "Entre com a sua conta Google sem precisar criar ou guardar senhas extras no aplicativo.",
+  },
+  {
+    title: "Validação de ponta a ponta",
+    description:
+      "Todas as movimentações passam por verificação autenticada no servidor antes de serem salvas.",
+  },
+] as const;
+
+function PresentationPage() {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { user, isLoading } = usePublicAuthSession();
+  const [signingOut, setSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
+    try {
+      await signOutUser({
+        queryClient,
+        navigateToAuth: () => navigate({ to: "/", replace: true }),
+      });
+    } catch {
+      toast.error("Não foi possível sair da conta. Tente novamente.");
+    } finally {
+      setSigningOut(false);
+    }
+  };
 
   return (
-    <div className="flex flex-col gap-6">
-      <PageHeader
-        eyebrow={dateLabel ?? "Visão geral"}
-        title={`${greeting}!`}
-        description="Este é o resumo das suas finanças."
-        actions={<PeriodSelect value={period} onChange={setPeriod} />}
-      />
-      <TransactionsBoundary>
-        {(transactions) => <Dashboard transactions={transactions} period={period} />}
-      </TransactionsBoundary>
-    </div>
-  );
-}
+    <div className="min-h-dvh bg-background text-foreground">
+      <section className="relative overflow-hidden bg-hero text-hero-foreground">
+        <div className="surface-hero pointer-events-none absolute inset-0 rounded-none" />
+        <GuillochePattern className="pointer-events-none absolute -bottom-8 left-0 h-80 w-full text-hero-foreground/[0.08]" />
 
-interface DashboardProps {
-  transactions: Transaction[];
-  period: PeriodKey;
-}
-
-function Dashboard({ transactions, period }: DashboardProps) {
-  const { openCreate } = useTransactionDialog();
-  const today = useMemo(() => new Date(), []);
-
-  const data = useMemo(() => {
-    const todayISO = toISODate(today);
-    const range = resolvePeriod(period, today);
-    const periodTransactions = filterByRange(transactions, range);
-    const chartRange = resolveChartRange(range, transactions, todayISO);
-    return {
-      range,
-      balanceCents: calculateAvailableBalance(transactions, todayISO),
-      totals: calculateTotals(periodTransactions),
-      series: chartRange ? buildCashflowSeries(periodTransactions, chartRange) : null,
-      hasPeriodActivity: periodTransactions.length > 0,
-      recent: transactions.filter((t) => t.date <= todayISO).slice(0, RECENT_LIMIT),
-    };
-  }, [transactions, period, today]);
-
-  const savingsRate = safeRatio(data.totals.netCents, data.totals.incomeCents);
-
-  return (
-    <div className="flex flex-col gap-4 md:gap-6">
-      <div className="grid gap-5 lg:grid-cols-5 lg:gap-6">
-        <BalanceHero balanceCents={data.balanceCents} className="lg:col-span-3" />
-        <QuickActions className="lg:col-span-2" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
-        <StatCard
-          label="Receitas"
-          cents={data.totals.incomeCents}
-          icon={ArrowDownLeft}
-          tone="income"
-          hint="Entradas no período"
-        />
-        <StatCard
-          label="Despesas"
-          cents={data.totals.expenseCents}
-          icon={ArrowUpRight}
-          tone="expense"
-          hint="Saídas no período"
-        />
-        <StatCard
-          label="Economizado"
-          className="col-span-2 sm:col-span-1"
-          cents={data.totals.netCents}
-          icon={PiggyBank}
-          tone="savings"
-          hint={
-            savingsRate === null
-              ? "Sem receitas no período"
-              : `${formatPercent(savingsRate)} das receitas`
-          }
-        />
-      </div>
-
-      <div className="grid gap-4 md:gap-6 lg:grid-cols-5">
-        <SectionCard
-          title="Movimentações"
-          icon={LineChart}
-          description={data.range ? formatRangeLabel(data.range) : "Todo o período"}
-          className="lg:col-span-3"
-        >
-          {data.series && data.hasPeriodActivity ? (
-            <CashflowAreaChart series={data.series} />
-          ) : (
-            <EmptyState
-              icon={LineChart}
-              title="Sem movimentações no período"
-              description="Adicione receitas e despesas para acompanhar a evolução aqui."
-            />
-          )}
-        </SectionCard>
-
-        <SectionCard
-          title="Últimas transações"
-          icon={History}
-          className="lg:col-span-2"
-          action={
-            data.recent.length > 0 && (
-              <Button asChild variant="ghost" size="sm" className="-mr-2 text-primary">
-                <Link to="/movimentacoes">
-                  Ver todas
+        <header className="relative mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-6 md:px-8">
+          <Brand tone="inverse" to="/" />
+          <div className="flex items-center gap-2">
+            {!isLoading && user ? (
+              <>
+                <Button asChild variant="hero" size="sm">
+                  <Link to="/inicio">
+                    Meu painel
+                    <ArrowRight aria-hidden />
+                  </Link>
+                </Button>
+                <Button
+                  type="button"
+                  variant="hero-ghost"
+                  size="sm"
+                  onClick={() => void handleSignOut()}
+                  disabled={signingOut}
+                >
+                  <LogOut aria-hidden />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <Button asChild variant="hero" size="sm">
+                <Link to="/auth">
+                  Entrar
                   <ArrowRight aria-hidden />
                 </Link>
               </Button>
-            )
-          }
-        >
-          {data.recent.length > 0 ? (
-            <TransactionList transactions={data.recent} today={today} />
-          ) : (
-            <EmptyState
-              icon={Receipt}
-              title="Nenhuma transação ainda"
-              description="Comece registrando sua primeira receita ou despesa."
-              action={
-                <Button variant="soft" size="sm" onClick={() => openCreate("expense")}>
-                  Adicionar despesa
+            )}
+          </div>
+        </header>
+
+        <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-5 pb-20 pt-8 md:px-8 md:pb-28 md:pt-14 lg:grid-cols-12">
+          <div className="space-y-6 lg:col-span-7">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-hero-accent">
+              Controle financeiro pessoal
+            </p>
+            <h1 className="font-display text-4xl font-semibold tracking-tight leading-[1.08] sm:text-5xl lg:text-6xl">
+              Seu dinheiro organizado, claro e só seu.
+            </h1>
+            <p className="max-w-xl text-base leading-relaxed text-hero-muted sm:text-lg">
+              Acompanhe saldo disponível, receitas, despesas e análises mensais em uma experiência
+              simples, com cada conta isolada e protegida.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              {user ? (
+                <Button asChild variant="hero" size="lg">
+                  <Link to="/inicio">
+                    Abrir meu painel
+                    <ArrowRight aria-hidden />
+                  </Link>
                 </Button>
-              }
-            />
-          )}
-        </SectionCard>
-      </div>
+              ) : (
+                <Button asChild variant="hero" size="lg">
+                  <Link to="/auth">
+                    Entrar com o Google
+                    <ArrowRight aria-hidden />
+                  </Link>
+                </Button>
+              )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-5">
+            <div className="relative overflow-hidden rounded-3xl border border-hero-foreground/15 bg-hero-foreground/[0.07] p-6 shadow-hero backdrop-blur-sm sm:p-7">
+              <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-[0.16em] text-hero-muted">
+                <span>Resumo da conta</span>
+                <span className="inline-flex items-center gap-1.5 text-hero-accent">
+                  <Lock className="h-3.5 w-3.5" aria-hidden />
+                  Privado
+                </span>
+              </div>
+              <p className="mt-5 text-xs text-hero-muted">Saldo disponível</p>
+              <p className="tabular mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+                R$ 4.820,50
+              </p>
+
+              <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hero-foreground/15 pt-5">
+                <div className="rounded-2xl bg-hero-foreground/[0.06] p-3.5">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-hero-muted">
+                    <ArrowDownLeft className="h-3.5 w-3.5 text-hero-accent" aria-hidden />
+                    Entradas
+                  </span>
+                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 7.500,00</p>
+                </div>
+                <div className="rounded-2xl bg-hero-foreground/[0.06] p-3.5">
+                  <span className="inline-flex items-center gap-1.5 text-xs text-hero-muted">
+                    <ArrowUpRight className="h-3.5 w-3.5 text-hero-muted" aria-hidden />
+                    Saídas
+                  </span>
+                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 2.679,50</p>
+                </div>
+              </div>
+              <p className="mt-4 text-[11px] text-hero-muted/80">
+                Exemplo ilustrativo. Ao entrar, você vê apenas as suas movimentações reais.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-5 py-16 md:px-8 md:py-24">
+        <div className="max-w-2xl">
+          <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+            Tudo o que você precisa para acompanhar o mês
+          </h2>
+          <p className="mt-3 text-base text-muted-foreground">
+            Sem planilhas complicadas: registre o que entra e sai e deixe o Verdi organizar os
+            números para você.
+          </p>
+        </div>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {HIGHLIGHTS.map(({ icon: Icon, title, description }) => (
+            <div key={title} className="surface-card p-6">
+              <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+                <Icon className="h-5 w-5" aria-hidden />
+              </div>
+              <h3 className="mt-5 font-display text-lg font-semibold text-foreground">{title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-y border-border bg-card">
+        <div className="mx-auto grid w-full max-w-6xl gap-10 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-12 lg:items-center">
+          <div className="space-y-4 lg:col-span-5">
+            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary-soft text-primary">
+              <ShieldCheck className="h-5 w-5" aria-hidden />
+            </div>
+            <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+              Privacidade desde a base
+            </h2>
+            <p className="text-base leading-relaxed text-muted-foreground">
+              O Verdi separa cada usuário no servidor e no banco de dados para que apenas você
+              consiga visualizar, criar, editar ou excluir suas movimentações.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-3 lg:col-span-7">
+            {PRIVACY_PILLARS.map(({ title, description }) => (
+              <div key={title} className="space-y-2">
+                <h3 className="font-display text-base font-semibold text-foreground">{title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-5 py-16 text-center md:px-8 md:py-24">
+        <h2 className="font-display text-2xl font-semibold tracking-tight sm:text-3xl">
+          Pronto para assumir o controle das suas finanças?
+        </h2>
+        <p className="mx-auto mt-3 max-w-xl text-base text-muted-foreground">
+          Entre com sua conta Google e comece a registrar suas receitas e despesas agora mesmo.
+        </p>
+        <div className="mt-7">
+          <Button asChild size="lg">
+            <Link to={user ? "/inicio" : "/auth"}>
+              {user ? "Ir para meu painel" : "Acessar minha conta"}
+              <ArrowRight aria-hidden />
+            </Link>
+          </Button>
+        </div>
+      </section>
+
+      <footer className="border-t border-border py-8">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-3 px-5 text-xs text-muted-foreground sm:flex-row md:px-8">
+          <span>Verdi — Controle financeiro pessoal</span>
+          <span>Acesso protegido com Google</span>
+        </div>
+      </footer>
     </div>
   );
 }

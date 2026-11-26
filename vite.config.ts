@@ -41,7 +41,8 @@ export default defineConfig({
                 sameOrigin &&
                 request.mode === "navigate" &&
                 !url.pathname.startsWith("/~oauth") &&
-                !url.pathname.startsWith("/api/"),
+                !url.pathname.startsWith("/api/") &&
+                !url.pathname.startsWith("/_serverFn"),
               handler: "NetworkFirst",
               options: {
                 cacheName: "pages-network-first",
