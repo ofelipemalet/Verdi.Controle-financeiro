@@ -8,6 +8,13 @@
       "when": 1795726056437,
       "tag": "0000_create_transactions_table",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1795726423590,
+      "tag": "0001_revoke_anon_transactions_grants",
+      "breakpoints": true
     }
   ]
 }
