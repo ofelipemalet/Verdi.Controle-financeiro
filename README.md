@@ -1,4 +1,4 @@
-# Verde Money Compass
+# Verdi - Controle Financeiro 
 
 Objetivo: Desenvolver um aplicativo web de controle financeiro pessoal, com identidade visual própria, inspirado na experiência de aplicativos bancários modernos, utilizando verde e branco como cores principais.
 
