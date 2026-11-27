@@ -8,7 +8,7 @@
 - [x] Testes de cálculos, validações e armazenamento
 - [x] Visual mais temático e profissional (menu verde-escuro, cartão de saldo estilo banco, atalhos)
 - [x] Instalável no celular (PWA) com o logo atual
-- [ ] Apresentação e login com Google, sem cadastro adicional de perfil
-- [ ] Banco na nuvem e API autenticada com receitas/despesas isoladas por usuário
-- [ ] Proteção de acesso, limpeza de dados ao sair e testes de isolamento
-- [ ] Verificação das telas e do fluxo autenticado
+- [x] Apresentação e login com Google, sem cadastro adicional de perfil
+- [x] Banco na nuvem e API autenticada com receitas/despesas isoladas por usuário
+- [x] Proteção de acesso, limpeza de dados ao sair e testes de isolamento
+- [ ] Verificação do fluxo autenticado completo após login com Google (depende de login interativo do usuário na pré-visualização, pois a criação automática de sessão de teste falhou no ambiente)

@@ -117,16 +117,18 @@ function AuthPage() {
       </section>
 
       <main className="flex flex-col justify-between bg-background px-6 py-8 sm:px-10">
-        <div className="flex items-center justify-between">
-          <div className="lg:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <div className="shrink-0 lg:hidden">
             <Brand to="/" />
           </div>
           <Link
             to="/"
-            className="press ml-auto inline-flex items-center gap-2 rounded-full px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
+            className="press ml-auto inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden />
-            Voltar à apresentação
+            <span>
+              Voltar<span className="hidden sm:inline"> à apresentação</span>
+            </span>
           </Link>
         </div>
 
