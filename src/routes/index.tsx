@@ -183,7 +183,7 @@ function PresentationPage() {
               </div>
               <p className="mt-5 text-xs text-hero-muted">Saldo disponível</p>
               <p className="tabular mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-                R$ 4.820,50
+                R$ 0,00
               </p>
 
               <div className="mt-6 grid grid-cols-2 gap-3 border-t border-hero-foreground/15 pt-5">
@@ -192,18 +192,18 @@ function PresentationPage() {
                     <ArrowDownLeft className="h-3.5 w-3.5 text-hero-accent" aria-hidden />
                     Entradas
                   </span>
-                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 7.500,00</p>
+                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 0,00</p>
                 </div>
                 <div className="rounded-2xl bg-hero-foreground/[0.06] p-3.5">
                   <span className="inline-flex items-center gap-1.5 text-xs text-hero-muted">
                     <ArrowUpRight className="h-3.5 w-3.5 text-hero-muted" aria-hidden />
                     Saídas
                   </span>
-                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 2.679,50</p>
+                  <p className="tabular mt-1.5 font-display text-base font-semibold">R$ 0,00</p>
                 </div>
               </div>
               <p className="mt-4 text-[11px] text-hero-muted/80">
-                Exemplo ilustrativo. Ao entrar, você vê apenas as suas movimentações reais.
+                Ao entrar, você vê apenas as suas movimentações reais.
               </p>
             </div>
           </div>
